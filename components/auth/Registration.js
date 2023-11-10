@@ -3,9 +3,35 @@ import { TextInput } from "react-native";
 import { StyleSheet, Text } from "react-native";
 import { View, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { firebase_auth } from "./FirebaseConfig";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
-export default function Registration() {
+export default function Registration(props) {
+  const navigation = props.navigation;
   const [isPasswordSecure, setIsPasswordSecure] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const auth = firebase_auth;
+
+  const signUp = async () => {
+    setLoading(true);
+    try {
+      const response = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      console.log(response);
+      alert("Check your emails");
+      navigation.navigate('Login')
+    } catch (error) {
+      console.log("error");
+      alert("Sign in failed:" + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.welcome}>
@@ -39,9 +65,16 @@ export default function Registration() {
         </Text>
         <View style={{ margin: 20 }}>
           <Text>Fullnames</Text>
-          <TextInput style={{ borderWidth: 1, borderRadius: 10 }}></TextInput>
+          <TextInput
+            style={{ borderWidth: 1, borderRadius: 10 }}
+          ></TextInput>
           <Text style={{ marginTop: 20 }}>Email</Text>
-          <TextInput style={{ borderWidth: 1, borderRadius: 10 }}></TextInput>
+          <TextInput
+            style={{ borderWidth: 1, borderRadius: 10 }}
+            value={email}
+            autoCapitalize="none"
+            onChangeText={(text) => setEmail(text)}
+          ></TextInput>
           <Text style={{ marginTop: 20 }}>Password</Text>
 
           <View
@@ -65,9 +98,12 @@ export default function Registration() {
             <TextInput
               secureTextEntry={isPasswordSecure}
               style={{ width: "100%" }}
+              value={password} 
+              autoCapitalize="none"
+              onChangeText={(text) => setPassword(text)}
             />
           </View>
-           <Text style={{ marginTop: 20 }}>Password</Text>
+          <Text style={{ marginTop: 20 }}>Confirm Password</Text>
           <View
             style={{
               flexDirection: "row",
@@ -89,9 +125,12 @@ export default function Registration() {
             <TextInput
               secureTextEntry={isPasswordSecure}
               style={{ width: "50%" }}
+              value={password} 
+              autoCapitalize="none"
+              onChangeText={(text) => setPassword(text)}
             />
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={signUp}>
             <View
               style={{
                 marginTop: 80,
@@ -111,7 +150,9 @@ export default function Registration() {
           </TouchableOpacity>
           <View style={{ flexDirection: "row", justifyContent: "center" }}>
             <Text style={{ color: "#E8A392" }}>Already have account?</Text>
-            <Text style={{ color: "orange", fontWeight: "bold" }}>Login</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <Text style={{ color: "orange", fontWeight: "bold" }}>Login</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
